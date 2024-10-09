@@ -4,8 +4,15 @@ using Microsoft.EntityFrameworkCore;
 using BlazorSocialAuth.Components;
 using BlazorSocialAuth.Components.Account;
 using BlazorSocialAuth.Data;
+using dotenv.net;
+
+#if DEBUG
+DotEnv.Load();
+#endif
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddEnvironmentVariables();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -20,6 +27,11 @@ builder.Services.AddAuthentication(options =>
     {
         options.DefaultScheme = IdentityConstants.ApplicationScheme;
         options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+    })
+    .AddMicrosoftAccount(options =>
+    {
+        options.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"]!;
+        options.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"]!;
     })
     .AddIdentityCookies();
 
